@@ -1,0 +1,5 @@
+bottle==0.12.9
+redis==2.10.5
+qcore==0.2.1
+Cython==0.25.1
+PyJWT==1.4.2
