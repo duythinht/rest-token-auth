@@ -57,19 +57,14 @@ def test_request_access_token_by_rf():
 
 def test_invalid_rf_when_request_access_token():
   rf = 'what the fuck is this'
-  try:
+  with AssertRaises(auth.InvalidToken):
     access_token = auth.request_atk_by_rf(rf)
-  except Exception as e:
-    pass
-    # assert_is_instance(e, auth.InvalidToken)
+
 
 def test_expired_rf_when_request_access_token():
   xao_cho_rf = jwt.encode(dict(uid=1, ssid='hello', exp=(time.time()-1)), auth.SECRET)
-
-  try:
+  with AssertRaises(auth.Expired):
     atk = auth.request_atk_by_rf(xao_cho_rf)
-  except Exception as e:
-    assert_is_instance(e, auth.Expired)
 
 def test_of_session_list():
   Adolf = users.get_by_name('adolf')
@@ -93,12 +88,8 @@ def test_revoked_raising_exception():
   ssid = auth.new_ssid(Adolf.get('uid'), 'Chrome')
   token = auth.make_access_token(Adolf.get('uid'), ssid)
   redis.delete(auth.SSAGENT_KEY % ssid)
-  try:
+  with AssertRaises(auth.TokenRevoked):
     auth.decode_and_check(token)
-    assert_eq('should not pass', 1)
-  except Exception as e:
-    print e.message
-    # assert_is_instance(e, auth.TokenRevoked)
 
 
 def test_revove():
@@ -108,7 +99,6 @@ def test_revove():
   assert_eq(redis.exists(key), True)
   auth.revoke(ssid)
   assert_eq(redis.exists(key), False)
-
 
 def test_after():
   [redis.delete(key) for key in redis.keys('auth:*')]
